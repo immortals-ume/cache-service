@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: cache-service
+
+cache:
+  redis:
+    host: redis-prod-host.example.com
+    port: 6379
+    password: yourStrongRedisPasswordHere
+    database: 0
+    command-timeout: 2s
+    time-to-live: 10m
+    use-ssl: false
+    pool-max-total: 16
+    pool-max-idle: 16
+    pool-min-idle: 4
+    pool-max-wait: 1s
+    auto-reconnect: true
