@@ -5,6 +5,8 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,4 +25,22 @@ public class CacheProperties {
     private Integer poolMaxIdle;
     private Integer poolMinIdle;
     private Duration poolMaxWait;
+    private Boolean enable;
+    private Boolean pingBeforeActivateConnection;
+
+    private Cluster cluster = new Cluster();
+    private Sentinel sentinel = new Sentinel();
+
+    @Getter
+    @Setter
+    public static class Cluster {
+        private List<String> nodes = new ArrayList<>();
+    }
+
+    @Getter
+    @Setter
+    public static class Sentinel {
+        private String master;
+        private List<String> nodes = new ArrayList<>();
+    }
 }

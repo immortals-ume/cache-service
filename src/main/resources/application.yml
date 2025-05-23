@@ -1,6 +1,8 @@
 spring:
   application:
     name: cache-service
+  profiles:
+    default:
 
 cache:
   redis:
@@ -16,3 +18,15 @@ cache:
     pool-min-idle: 4
     pool-max-wait: 1s
     auto-reconnect: true
+    enabled: true
+    sentinel:
+      master: mymaster
+      nodes:
+        - sentinel1:26379
+        - sentinel2:26379
+        - sentinel3:26379
+    cluster:
+      nodes:
+        - redis-node1:6379
+        - redis-node2:6379
+        - redis-node3:6379

@@ -1,0 +1,3 @@
+com.immortals.cacheservice.config.RedisStandaloneConfig
+com.immortals.cacheservice.config.RedisClusterConfig
+com.immortals.cacheservice.config.RedisSentinelConfig

@@ -2,14 +2,15 @@ package com.immortals.cacheservice.config;
 
 import com.immortals.cacheservice.service.RedisCacheService;
 import io.lettuce.core.ClientOptions;
+import io.lettuce.core.ReadFrom;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -18,13 +19,11 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 
-import static io.lettuce.core.ReadFrom.REPLICA_PREFERRED;
-
 @Configuration
+@Profile("cluster")
+@RequiredArgsConstructor
 @Slf4j
-@Profile("standalone")
-@ConditionalOnProperty(name = "cache.redis.enabled", havingValue = "true", matchIfMissing = true)
-public class CacheConfiguration {
+public class CacheClusterConfiguration {
 
     @Bean
     public CacheProperties cacheProperties() {
@@ -32,39 +31,25 @@ public class CacheConfiguration {
     }
 
     @Bean(destroyMethod = "destroy")
-    public LettuceConnectionFactory lettuceConnectionFactory(CacheProperties props) {
-        log.info("Initializing LettuceConnectionFactory with host: {}, port: {}", props.getHost(), props.getPort());
-
-        RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration();
-        redisConfig.setHostName(props.getHost());
-        redisConfig.setPort(props.getPort());
-        if (props.getPassword() != null && !props.getPassword().isBlank()) {
-            redisConfig.setPassword(props.getPassword());
-        }
-
-        redisConfig.setDatabase(props.getDatabase());
-
-
+    public LettuceConnectionFactory redisClusterConnectionFactory(final CacheProperties props) {
+        RedisClusterConfiguration clusterConfig = new RedisClusterConfiguration(props.getCluster().getNodes());
         LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
                 .commandTimeout(props.getCommandTimeout())
+                .shutdownTimeout(Duration.ZERO)
+                .readFrom(ReadFrom.REPLICA_PREFERRED)
                 .useSsl()
                 .and()
-                .shutdownTimeout(Duration.ZERO)
-                .readFrom(REPLICA_PREFERRED)
                 .clientOptions(ClientOptions.builder()
                         .autoReconnect(props.getAutoReconnect())
-                        .pingBeforeActivateConnection(props.getAutoReconnect())
+                        .pingBeforeActivateConnection(props.getPingBeforeActivateConnection())
                         .build())
                 .build();
 
-
-        LettuceConnectionFactory factory = new LettuceConnectionFactory(redisConfig, clientConfig);
-        factory.afterPropertiesSet();
-        return factory;
+        return new LettuceConnectionFactory(clusterConfig, clientConfig);
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(@Qualifier("lettuceConnectionFactory") RedisConnectionFactory factory) {
+    public RedisTemplate<String, Object> redisTemplate(@Qualifier("redisClusterConnectionFactory") RedisConnectionFactory factory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(factory);
 
@@ -89,5 +74,4 @@ public class CacheConfiguration {
         log.info("Initializing RedisCacheService with TTL: {}", cacheProperties.getTimeToLive());
         return new RedisCacheService<>(redisTemplate, cacheProperties.getTimeToLive());
     }
-
 }

@@ -9,11 +9,11 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.4.4</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/> <!-- lookup parent from a repository -->
     </parent>
 
     <groupId>com.immortals</groupId>
-    <artifactId>cache-service</artifactId>
+    <artifactId>cache-service-spring-boot-starter</artifactId>
     <version>1.0.0</version>
     <name>Cache Service</name>
     <description>A robust, extensible Spring Boot cache service supporting pluggable strategies like in-memory and Redis
