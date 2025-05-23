@@ -118,6 +118,7 @@
         </dependencies>
     </dependencyManagement>
 
+
     <build>
         <plugins>
             <plugin>
@@ -126,5 +127,13 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/YOUR_GITHUB_USERNAME/YOUR_REPO</url>
+        </repository>
+    </distributionManagement>
 
 </project>

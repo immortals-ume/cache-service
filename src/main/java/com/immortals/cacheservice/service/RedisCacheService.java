@@ -4,6 +4,7 @@ import com.immortals.cacheservice.service.exception.CacheException;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.connection.RedisServerCommands;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -111,7 +112,7 @@ public class RedisCacheService<K, V> implements CacheService<K, V> {
     public void clear() {
         try {
             redisTemplate.execute((RedisCallback<Void>) connection -> {
-                connection.serverCommands();
+                connection.serverCommands().flushAll(RedisServerCommands.FlushOption.ASYNC);
                 return null;
             });
         } catch (DataAccessException e) {
