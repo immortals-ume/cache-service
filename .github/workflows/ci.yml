@@ -2,9 +2,15 @@ name: CI/CD - Reactive Cache Service
 
 on:
   push:
-    branches: [ develop, main, master ]
+    branches:
+      - master
+      - main
+      - develop
   pull_request:
-    branches: [ develop, main, master ]
+    branches:
+      - main
+      - master
+      - develop
 
 env:
   JAVA_VERSION: '17'
